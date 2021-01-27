@@ -1,0 +1,24 @@
+/** @format */
+
+.tracker-container {
+  display: grid;
+  grid-template-rows: 40px auto;
+  padding: 10px;
+  width: 70%;
+}
+
+.tracker-contents {
+  display: grid;
+  grid-template-columns: 70% 30%;
+  padding: 15px;
+}
+
+.tracker-display {
+  display: grid;
+  grid-template-rows: 1f 1f 1f 1f;
+}
+
+.tracker-controls {
+  display: grid;
+  grid-template-rows: 1f 1f 1f;
+}
