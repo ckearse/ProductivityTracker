@@ -1,6 +1,8 @@
 /** @format */
 
-import react, { Component } from 'react';
+import { Component } from 'react';
+import Playbutton from './componenet.playbutton';
+import TimerDisplay from './component.timerdisplay';
 import './styles.productivitytracker.css';
 
 export default class ProductivityTracker extends Component {
@@ -8,9 +10,9 @@ export default class ProductivityTracker extends Component {
     super(props);
 
     this.updateTime = this.updateTime.bind(this);
-    this.updateDateTime = this.updateDateTime.bind(this);
-    this.updateActiveTime = this.updateActiveTime.bind(this);
-    this.updateInactiveTime = this.updateInactiveTime.bind(this);
+    this.calculateActiveTime = this.calculateActiveTime.bind(this);
+    this.calculateInactiveTime = this.calculateInactiveTime.bind(this);
+    this.toggleTimer = this.toggleTimer.bind(this);
     this.startTracker = this.startTracker.bind(this);
     this.pauseTracker = this.pauseTracker.bind(this);
     this.resetTracker = this.resetTracker.bind(this);
@@ -18,7 +20,8 @@ export default class ProductivityTracker extends Component {
     this.state = {
       timerStarted: false,
       timerPaused: false,
-      intervalDuration: 1000,
+      isTimerRunning: false,
+      intervalDuration: 100,
       intervalId: null,
       dateTime: new Date().toLocaleTimeString(),
       activeTime: 0,
@@ -38,6 +41,8 @@ export default class ProductivityTracker extends Component {
       dateTime: new Date().toLocaleTimeString(),
       intervalId: timerInterval,
     });
+
+    console.log('Initial State', this.state);
   }
 
   componentWillUnmount() {
@@ -46,20 +51,19 @@ export default class ProductivityTracker extends Component {
   }
 
   updateTime() {
-    const oldState = this.state;
-    oldState.dateTime = this.updateDateTime();
-    oldState.activeTime = this.updateActiveTime();
-    oldState.inactiveTime = this.updateInactiveTime();
-    oldState.totalTimeElapsed = this.updateTotalElapsedTime();
-
-    this.setState(oldState);
+    this.setState({
+      dateTime: this.calculateDateTime(),
+      activeTime: this.calculateActiveTime(),
+      inactiveTime: this.calculateInactiveTime(),
+      totalTimeElapsed: this.calculateTotalElapsedTime(),
+    });
   }
 
-  updateDateTime() {
+  calculateDateTime() {
     return new Date().toLocaleTimeString();
   }
 
-  updateActiveTime() {
+  calculateActiveTime() {
     const {
       timerStarted,
       timerPaused,
@@ -71,7 +75,7 @@ export default class ProductivityTracker extends Component {
       : activeTime;
   }
 
-  updateInactiveTime() {
+  calculateInactiveTime() {
     const {
       timerStarted,
       timerPaused,
@@ -84,22 +88,37 @@ export default class ProductivityTracker extends Component {
       : inactiveTime;
   }
 
-  updateTotalElapsedTime() {
+  calculateTotalElapsedTime() {
     const { timerStarted, intervalDuration, totalTimeElapsed } = this.state;
     return timerStarted
       ? totalTimeElapsed + intervalDuration
       : totalTimeElapsed;
   }
 
+  toggleTimer() {
+    const { isTimerRunning } = this.state;
+
+    isTimerRunning ? this.pauseTracker() : this.startTracker();
+  }
+
   startTracker() {
     this.setState((oldState) => {
-      return { ...oldState, timerStarted: true, timerPaused: false };
+      return {
+        ...oldState,
+        timerStarted: true,
+        timerPaused: false,
+        isTimerRunning: true,
+      };
     });
   }
 
   pauseTracker() {
     this.setState((oldState) => {
-      return { ...oldState, timerPaused: true };
+      return {
+        ...oldState,
+        timerPaused: true,
+        isTimerRunning: false,
+      };
     });
   }
 
@@ -112,12 +131,19 @@ export default class ProductivityTracker extends Component {
         activeTime: 0,
         inactiveTime: 0,
         totalTimeElapsed: 0,
+        isTimerRunning: false,
       };
     });
   }
 
   render() {
-    const { dateTime, activeTime, inactiveTime, totalTimeElapsed } = this.state;
+    const {
+      dateTime,
+      activeTime,
+      inactiveTime,
+      totalTimeElapsed,
+      isTimerRunning,
+    } = this.state;
 
     return (
       <div className='tracker-container'>
@@ -125,14 +151,27 @@ export default class ProductivityTracker extends Component {
         <div className='tracker-contents'>
           <div className='tracker-display'>
             <label>Current Time: {dateTime}</label>
-            <label>Active Time: {activeTime}</label>
-            <label>Inactive Time: {inactiveTime} </label>
-            <label>Total Elapsed: {totalTimeElapsed}</label>
+            <TimerDisplay
+              title={'Active Time:'}
+              milliseconds={activeTime}
+            ></TimerDisplay>
+            <TimerDisplay
+              title={'Inactive Time:'}
+              milliseconds={inactiveTime}
+            ></TimerDisplay>
+            <TimerDisplay
+              title={'Total Elapsed Time:'}
+              milliseconds={totalTimeElapsed}
+            ></TimerDisplay>
           </div>
           <div className='tracker-controls'>
-            <button onClick={this.startTracker}>Start</button>
-            <button onClick={this.pauseTracker}>Pause</button>
-            <button onClick={this.resetTracker}>Reset</button>
+            <Playbutton
+              isRunning={isTimerRunning}
+              onClick={this.toggleTimer}
+            ></Playbutton>
+            <button onClick={this.resetTracker} className='control-button'>
+              Reset
+            </button>
           </div>
         </div>
       </div>
