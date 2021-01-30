@@ -3,7 +3,7 @@
 import { Component } from 'react';
 import Playbutton from './componenet.playbutton';
 import TimerDisplay from './component.timerdisplay';
-import './styles.productivitytracker.css';
+import './../styles/styles.productivitytracker.css';
 
 export default class ProductivityTracker extends Component {
   constructor(props) {

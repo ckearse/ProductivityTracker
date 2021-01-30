@@ -1,7 +1,7 @@
 /** @format */
 
 import React, { Component } from 'react';
-import './styles.playbutton.css';
+import './../styles/styles.playbutton.css';
 
 export default class PlayButton extends Component {
   constructor(props) {
